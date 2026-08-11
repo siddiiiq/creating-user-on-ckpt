@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GiNi — Complete Role, Role Group & Profile Creation Flow</title>
+<style>
+  :root{
+    --bg:#0b1120;
+    --card:#141c2f;
+    --card2:#101828;
+    --border:#263449;
+    --text:#e5edf7;
+    --muted:#93a4bd;
+    --accent:#38bdf8;
+    --picker:#3b82f6;
+    --supervisor:#22c55e;
+    --admin:#a855f7;
+    --itba:#f97316;
+    --warn:#facc15;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:radial-gradient(circle at 20% 0%, #16213b 0%, #0b1120 45%);
+    color:var(--text);
+    font-family:'Segoe UI', Roboto, Arial, sans-serif;
+    line-height:1.5;
+    padding:32px 16px 80px;
+  }
+  .wrap{max-width:1300px;margin:0 auto;}
+
+  .hero{
+    text-align:center;
+    padding:34px 20px 28px;
+    border-radius:18px;
+    background:linear-gradient(135deg,#1e293b,#0f172a);
+    border:1px solid var(--border);
+    margin-bottom:28px;
+  }
+  .hero h1{
+    margin:0 0 8px;
+    font-size:2rem;
+    background:linear-gradient(90deg,#38bdf8,#a855f7);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .hero p{color:var(--muted);margin:4px 0;}
+  .warn-banner{
+    margin-top:14px;
+    display:inline-block;
+    background:rgba(250,204,21,0.12);
+    border:1px solid rgba(250,204,21,0.4);
+    color:var(--warn);
+    padding:8px 16px;
+    border-radius:10px;
+    font-size:0.9rem;
+  }
+
+  .legend{
+    display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:34px;
+  }
+  .chip{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 14px;border-radius:999px;
+    background:var(--card2);border:1px solid var(--border);
+    font-size:0.85rem;font-weight:600;
+  }
+  .dot{width:10px;height:10px;border-radius:50%;}
+  .dot.picker{background:var(--picker);}
+  .dot.supervisor{background:var(--supervisor);}
+  .dot.admin{background:var(--admin);}
+  .dot.itba{background:var(--itba);}
+
+  h2.section-title{
+    text-align:center;
+    font-size:1.3rem;
+    margin:46px 0 18px;
+    color:#f1f5f9;
+    position:relative;
+  }
+  h2.section-title span{
+    background:var(--bg);
+    padding:0 16px;
+    position:relative;
+    z-index:1;
+  }
+  h2.section-title::before{
+    content:'';
+    position:absolute;top:50%;left:0;right:0;height:1px;
+    background:var(--border);
+  }
+
+  .step{
+    max-width:640px;
+    margin:0 auto;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px 20px;
+    text-align:center;
+  }
+  .step .icon{font-size:1.6rem;}
+  .step h3{margin:6px 0 4px;font-size:1.05rem;}
+  .step p{margin:0;color:var(--muted);font-size:0.9rem;}
+
+  .arrow{
+    text-align:center;
+    color:var(--accent);
+    font-size:1.4rem;
+    margin:4px 0;
+  }
+  .arrow small{
+    display:block;
+    color:var(--muted);
+    font-size:0.75rem;
+    margin-top:-2px;
+  }
+
+  .diamond-step{
+    max-width:520px;margin:0 auto;
+    background:linear-gradient(135deg,#1e2a44,#141c2f);
+    border:1px solid var(--accent);
+    border-radius:14px;
+    padding:16px 20px;text-align:center;
+  }
+  .diamond-step h3{margin:4px 0;color:var(--accent);}
+
+  /* branch grid for employee types */
+  .branch-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    margin:18px 0 8px;
+  }
+  @media(max-width:1000px){
+    .branch-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media(max-width:600px){
+    .branch-grid{grid-template-columns:1fr;}
+  }
+  .branch-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:14px;
+    border-top:4px solid var(--accent);
+  }
+  .branch-card.picker{border-top-color:var(--picker);}
+  .branch-card.supervisor{border-top-color:var(--supervisor);}
+  .branch-card.admin{border-top-color:var(--admin);}
+  .branch-card.itba{border-top-color:var(--itba);}
+
+  .branch-card h4{
+    margin:0 0 10px;
+    font-size:0.95rem;
+    display:flex;align-items:center;gap:6px;
+  }
+  .mini-step{
+    background:var(--card2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:8px 10px;
+    margin-bottom:6px;
+    font-size:0.78rem;
+  }
+  .mini-step b{display:block;font-size:0.8rem;color:#fff;margin-bottom:2px;}
+  .mini-arrow{
+    text-align:center;color:var(--muted);font-size:0.85rem;margin:2px 0;
+  }
+  .tag{
+    display:inline-block;
+    font-size:0.68rem;
+    padding:1px 7px;
+    border-radius:999px;
+    margin-left:4px;
+    font-weight:700;
+  }
+  .tag.yes{background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.4);}
+  .tag.no{background:rgba(248,113,113,0.15);color:#f87171;border:1px solid rgba(248,113,113,0.4);}
+
+  .converge-label{
+    text-align:center;
+    color:var(--muted);
+    font-size:0.85rem;
+    margin:16px 0 6px;
+    letter-spacing:0.5px;
+  }
+  .converge-label::before, .converge-label::after{content:'—— ';}
+  .converge-label::after{content:' ——';}
+
+  /* lifecycle three-column */
+  .lifecycle-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
+    margin-top:10px;
+  }
+  @media(max-width:900px){.lifecycle-grid{grid-template-columns:1fr;}}
+  .lifecycle-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px;
+  }
+  .lifecycle-card h4{margin:0 0 10px;font-size:1rem;color:var(--accent);}
+
+  .key-fact{
+    max-width:900px;margin:26px auto;
+    background:rgba(56,189,248,0.08);
+    border:1px solid rgba(56,189,248,0.35);
+    border-radius:12px;
+    padding:14px 18px;
+    font-size:0.88rem;
+    color:#dbeafe;
+  }
+  .key-fact b{color:var(--accent);}
+
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:0.8rem;
+    margin-top:50px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <h1>GiNi — Complete Role, Role Group &amp; Profile Creation Flow</h1>
+    <p>From a brand-new employee walking in the door → to them logging in and seeing their exact menu/commands</p>
+    <div class="warn-banner">⚠️ Covers Picker, Supervisor, Warehouse Admin, and IT/BA setup — plus Role Change, Leaving, and Rejoining flows</div>
+  </div>
+
+  <div class="legend">
+    <div class="chip"><span class="dot picker"></span> Picker / Floor Worker (Android)</div>
+    <div class="chip"><span class="dot supervisor"></span> Supervisor (Cockpit)</div>
+    <div class="chip"><span class="dot admin"></span> Warehouse Admin (Cockpit)</div>
+    <div class="chip"><span class="dot itba"></span> IT / BA (System &amp; Licensing)</div>
+  </div>
+
+  <!-- STAGE 1 -->
+  <div class="step">
+    <div class="icon">🧑‍💼</div>
+    <h3>New Employee Joins the Warehouse</h3>
+    <p>HR/Admin is informed a new person needs GiNi access</p>
+  </div>
+  <div class="arrow">↓</div>
+
+  <div class="diamond-step">
+    <h3>❓ What kind of employee is this?</h3>
+    <p style="color:var(--muted);font-size:0.85rem;">This single decision determines every Role, Role Group and Profile choice that follows</p>
+  </div>
+  <div class="arrow">↓<small>branches into 4 paths</small></div>
+
+  <!-- STAGE 2: Role ID + Role Group + Profile per employee type -->
+  <h2 class="section-title"><span>Step 2 — Role IDs → Role Group → Profile Mapping (per employee type)</span></h2>
+
+  <div class="branch-grid">
+
+    <div class="branch-card picker">
+      <h4>📦 Picker / Floor Worker</h4>
+      <div class="mini-step"><b>1. Role IDs (Android)</b>Normal_Pick, Short_Product, Skip, Cut_Product — each is ONE voice-command permission</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step"><b>2. Role Group</b>"Picker-Standard" bundles those Role IDs. Cockpit access = No Access / View-own-performance only</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step"><b>3. Profile — Grid 1</b>Create Profile "PICKER-ZONE-A"</div>
+      <div class="mini-step"><b>4. Profile — Grid 2 (Functions)</b>Picking <span class="tag yes">YES</span> Putaway <span class="tag no">NO</span> Cycle Count <span class="tag no">NO</span></div>
+      <div class="mini-step"><b>5. Profile — Grid 3 (Work Types)</b>Normal Pick <span class="tag yes">YES</span> Short Product <span class="tag yes">YES</span> Override <span class="tag no">NO</span></div>
+    </div>
+
+    <div class="branch-card supervisor">
+      <h4>📊 Supervisor</h4>
+      <div class="mini-step"><b>1. Role IDs (Cockpit)</b>Can_View_Dashboard, Can_View_Reports, Can_Manage_Assignments, Can_Reject_Assignment</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step"><b>2. Role Group</b>"Supervisor-Standard" — Dashboards = Full, Picking = Full, Master Data = View, User Mgmt = No Access</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step"><b>3. Profile Mapping</b>Usually <span class="tag no">N/A</span> — supervisors work in Cockpit, not on the Android device</div>
+      <div class="mini-step">Exception: if they also need floor Override rights, a limited Android profile is mapped too</div>
+    </div>
+
+    <div class="branch-card admin">
+      <h4>👤 Warehouse Admin</h4>
+      <div class="mini-step"><b>1. Role IDs (Cockpit)</b>Can_Edit_Users, Can_Edit_Roles, Can_Edit_MasterData, Can_View_All</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step"><b>2. Role Group</b>"Warehouse-Admin-Full" — every module set to Full Access (User Mgmt, Master Data, Picking, Reports)</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step"><b>3. Profile Mapping</b><span class="tag no">N/A</span> — admins don't operate the Android scanner</div>
+    </div>
+
+    <div class="branch-card itba">
+      <h4>🔧 IT / BA</h4>
+      <div class="mini-step"><b>1. Role IDs (Cockpit)</b>Can_View_Logs, Can_Release_Session, Can_Upload_License</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step"><b>2. Role Group</b>"IT-BA-System" — System = Full, Licensing = Full, everything else = View or No Access</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step"><b>3. Profile Mapping</b><span class="tag no">N/A</span> — this role is Cockpit/back-end only</div>
+    </div>
+
+  </div>
+
+  <div class="key-fact">
+    <b>Remember the hierarchy:</b> Role ID = ONE permission (one key) → Role Group = a bundle of Role IDs (a keychain) → the Role Group is what actually gets assigned to a User. You never assign individual Role IDs to a person directly — always through a Role Group. <b>Profile Mapping is a separate, parallel system</b> that only matters for people who use the Android device (mainly Pickers) — it controls voice commands, not Cockpit pages.
+  </div>
+
+  <div class="converge-label">all four paths now converge</div>
+
+  <!-- STAGE 3: User creation -->
+  <h2 class="section-title"><span>Step 3 — Create the User in User Management</span></h2>
+  <div class="step">
+    <div class="icon">➕</div>
+    <h3>Admin → User Management → Add User</h3>
+    <p>Fill: Username, Full Name, Email, Status = Active, Client ID</p>
+  </div>
+  <div class="arrow">↓</div>
+  <div class="step">
+    <div class="icon">🔗</div>
+    <h3>Assign the Role Group built in Step 2</h3>
+    <p>Picker → "Picker-Standard" &nbsp;|&nbsp; Supervisor → "Supervisor-Standard" &nbsp;|&nbsp; Admin → "Warehouse-Admin-Full" &nbsp;|&nbsp; IT/BA → "IT-BA-System"</p>
+  </div>
+  <div class="arrow">↓</div>
+  <div class="step">
+    <div class="icon">📱</div>
+    <h3>Assign Profile ID (Android users only) + Default Page</h3>
+    <p>e.g. Profile "PICKER-ZONE-A" for a picker; Default Page = the screen that opens after login</p>
+  </div>
+  <div class="arrow">↓</div>
+  <div class="step">
+    <div class="icon">✅</div>
+    <h3>Save → User appears in Active Users</h3>
+    <p>The account now exists but has never logged in yet</p>
+  </div>
+  <div class="arrow">↓</div>
+
+  <!-- STAGE 4: Login flow -->
+  <h2 class="section-title"><span>Step 4 — First Login: Everything Gets Checked</span></h2>
+  <div class="step">
+    <div class="icon">🔐</div>
+    <h3>Enter Client ID + Username + Password</h3>
+    <p>App sends a POST request to <code>/api/Global</code></p>
+  </div>
+  <div class="arrow">↓</div>
+  <div class="step">
+    <div class="icon">🗄️</div>
+    <h3>Server validates credentials → Token generated → Session created</h3>
+    <p>Proves this login is genuine, like a wristband for this session</p>
+  </div>
+  <div class="arrow">↓</div>
+  <div class="step">
+    <div class="icon">☰</div>
+    <h3>GetHamburger() API is called</h3>
+    <p>Looks up the user's <b>Role Group</b> → checks every Role inside it (Full / View / Custom / No Access)</p>
+  </div>
+  <div class="arrow">↓</div>
+  <div class="step">
+    <div class="icon">🧭</div>
+    <h3>Menu is built dynamically + Default Page opens</h3>
+    <p>Only the pages this Role Group allows are shown — nothing is hardcoded</p>
+  </div>
+  <div class="arrow">↓<small>the same login process, four very different results</small></div>
+
+  <!-- STAGE 5: end state per type -->
+  <h2 class="section-title"><span>Step 5 — What Each Employee Type Actually Sees</span></h2>
+  <div class="branch-grid">
+    <div class="branch-card picker">
+      <h4>📦 Picker sees:</h4>
+      <div class="mini-step">Android app only. Hears "Go to Bin…", can say "Confirmed", "Short Product", "Skip". Saying "Override" is rejected — not in their Profile.</div>
+    </div>
+    <div class="branch-card supervisor">
+      <h4>📊 Supervisor sees:</h4>
+      <div class="mini-step">Cockpit Dashboards + Picking modules with full control. Master Data is view-only. User Management does not appear in their hamburger menu at all.</div>
+    </div>
+    <div class="branch-card admin">
+      <h4>👤 Warehouse Admin sees:</h4>
+      <div class="mini-step">Every Cockpit module: User Management, Roles, Master Data, Picking, Dashboards — all with full Add/Edit/Delete rights.</div>
+    </div>
+    <div class="branch-card itba">
+      <h4>🔧 IT/BA sees:</h4>
+      <div class="mini-step">System (GiNi Logs) and Licensing (Session Management) modules. Other business modules are view-only or hidden.</div>
+    </div>
+  </div>
+
+  <!-- STAGE 6: lifecycle flows -->
+  <h2 class="section-title"><span>What Happens Later — 3 Lifecycle Flows</span></h2>
+  <div class="lifecycle-grid">
+
+    <div class="lifecycle-card">
+      <h4>🔄 Employee's Role Changes</h4>
+      <div class="mini-step">Admin opens User Management → selects user → Edit → assigns a different Role Group (or Profile)</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step">Save. Nothing happens to their current session</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step"><b>Next login</b>, GetHamburger() re-runs automatically and builds the new menu — no app update needed</div>
+    </div>
+
+    <div class="lifecycle-card">
+      <h4>🚪 Employee Leaves</h4>
+      <div class="mini-step">Admin → User Management → select user → Delete → Confirm</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step">User moves to the <b>Inactive</b> tab — NOT permanently deleted</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step">All historical picks/assignments/performance data is preserved for audit</div>
+    </div>
+
+    <div class="lifecycle-card">
+      <h4>♻️ Employee Rejoins</h4>
+      <div class="mini-step">Admin → Inactive Users tab → select the user → Edit</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step">Change Status from Inactive → Active</div>
+      <div class="mini-arrow">↓</div>
+      <div class="mini-step">Save → user moves back to Active Users, same Role Group/Profile as before (can be updated if their situation changed)</div>
+    </div>
+
+  </div>
+
+  <div class="key-fact">
+    <b>Exam angle to remember:</b> Cockpit Roles control <b>pages</b> (Full / View / Custom / No Access). Android Roles control <b>voice commands</b> (Enabled / Disabled / Custom). Role Groups are the only thing ever assigned to a User directly. Profile Mapping (Grid 1 → Grid 2 → Grid 3: Profile → Functions → Work Types) is the completely separate system that shapes the Android experience, used mainly for Pickers/Putaway staff.
+  </div>
+
+  <footer>GiNi Cockpit — Role, Role Group &amp; Profile Flow — Study Guide for External Exam</footer>
+</div>
+</body>
+</html>
